@@ -1,46 +1,76 @@
 <template>
   <div>
-    <v-card width="400" class="mx-auto mt-5">
+    <v-card width="400" class="mx-auto mt-5" @submit.prevent="onSubmit">
       <v-card-title>
         <h1 class="display-1">LogIn</h1>
       </v-card-title>
       <v-card-text>
-        <v-form>
+        <v-form ref="form" v-model="valid">
           <v-text-field
+            v-model="userName"
             label="Username"
             prepend-icon="mdi-account-circle"
+            :rules="nameRules"
           />
           <v-text-field
             :type="showPassword?'text':'password'"
             label="Password"
+            v-model="password"
             prepend-icon="mdi-lock"
             :append-icon="showPassword?'mdi-eye':'mdi-eye-off'"
             @click:append="showPassword=!showPassword"
+            :rules="nameRules"
           />
         </v-form>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
+        <v-card-text class="loginWarning">{{loginWarning}}</v-card-text>
         <v-spacer></v-spacer>
-        <v-btn color="info">LogIn</v-btn>
+        <v-btn @click="validate" type="submit" color="info">LogIn</v-btn>
       </v-card-actions>
     </v-card>
   </div>
 </template>
 <script>
 export default {
-  name: 'App',
-  components: {
-
-  },
   data: () => ({
-    // msg: [
-    //   { id: 1, title: 'Тема вопроса1', text: 'q1 lorem20' },
-    //   { id: 2, title: 'Тема вопроса2', text: 'q1 lorem20' },
-    //   { id: 3, title: 'Тема вопроса3', text: 'q1 lorem20' },
-    //   { id: 4, title: 'Тема вопроса4', text: 'q1 lorem20' },
-    // ],
     showPassword: false,
+    lSData: {},
+    valid: true,
+    userName: null,
+    password: null,
+    loginWarning: null,
+    nameRules: [
+      (v) => !!v || 'Поле обязательно для ввода',
+    ],
   }),
+  mounted() {
+    if (!window.localStorage.getItem('data')) {
+      localStorage.setItem('data', JSON.stringify({ teacher: 'tdemo', student: 'sdemo' }));
+    }
+  },
+  methods: {
+    validate() {
+      if (this.$refs.form.validate()) {
+        const usersData = JSON.parse(localStorage.getItem('data'));
+
+        if (usersData[this.userName] === this.password) {
+          this.$router.push(`/${this.userName}`);
+        } else {
+          // console.log('neverno!');
+          this.loginWarning = 'Неверный логин и/или пароль';
+        }
+      }
+    },
+    onSubmit() {
+      console.log('submit');
+    },
+  },
 };
 </script>
+<style>
+  .loginWarning{
+    color: red;
+  }
+</style>

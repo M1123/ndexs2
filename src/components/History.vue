@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import QAitem from '@/views/QAitem.vue';
+import QAitem from '@/components/QAitem.vue';
 
 export default {
   components: {

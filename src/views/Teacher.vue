@@ -31,6 +31,9 @@ export default {
       (value) => !value || value.size <= 102400 || 'Размер файла должен быть не более 100 KB!',
     ],
   }),
+  created() {
+
+  },
 };
 </script>
 <style scoped>
