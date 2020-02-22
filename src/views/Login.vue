@@ -21,6 +21,7 @@
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
+        <v-spacer></v-spacer>
         <v-btn color="info">LogIn</v-btn>
       </v-card-actions>
     </v-card>
@@ -33,6 +34,12 @@ export default {
 
   },
   data: () => ({
+    // msg: [
+    //   { id: 1, title: 'Тема вопроса1', text: 'q1 lorem20' },
+    //   { id: 2, title: 'Тема вопроса2', text: 'q1 lorem20' },
+    //   { id: 3, title: 'Тема вопроса3', text: 'q1 lorem20' },
+    //   { id: 4, title: 'Тема вопроса4', text: 'q1 lorem20' },
+    // ],
     showPassword: false,
   }),
 };
