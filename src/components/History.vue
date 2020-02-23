@@ -1,22 +1,54 @@
 <template>
-  <v-card
+<div>
+ <h1 class="display-1">Вопросы и ответы</h1>
+  <v-card v-for="(item, index) in test" :key="index"
     class="mx-auto question"
   >
     <v-card-title>
-      <h1 class="display-1">Вопросы и ответы</h1>
+      <h3
+        @click="chooseThisTheme(item.theme)"
+        class="themeTitle"
+      >Тема обсуждения: {{item.theme}}</h3>
     </v-card-title>
     <v-card-text>
-      <QAitem/>
+       <v-simple-table>
+      <template v-slot:default>
+        <thead>
+          <tr>
+            <th class="text-left">Роль пользователя</th>
+            <th class="text-left">Текст</th>
+            <th class="text-left">Файл</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(element, index) in item.Qlist" :key="index">
+            <td>{{ element.role }}</td>
+            <td>{{ element.text }}</td>
+            <td>{{ element.file }}</td>
+          </tr>
+        </tbody>
+      </template>
+    </v-simple-table>
     </v-card-text>
   </v-card>
+</div>
 </template>
 
 <script>
-import QAitem from '@/components/QAitem.vue';
-
 export default {
+  props: ['historyOfMessages'],
   components: {
-    QAitem,
+
+  },
+  methods: {
+    chooseThisTheme(theme) {
+      this.$emit('changeTheme', theme);
+    },
+  },
+  computed: {
+    test() {
+      return this.historyOfMessages;
+    },
   },
 };
 </script>
@@ -25,5 +57,8 @@ export default {
   .question{
     min-width: 320px;
     width: 100%;
+  }
+  .themeTitle{
+    cursor: pointer;
   }
 </style>

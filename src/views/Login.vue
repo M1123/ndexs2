@@ -36,7 +36,6 @@
 export default {
   data: () => ({
     showPassword: false,
-    lSData: {},
     valid: true,
     userName: null,
     password: null,
@@ -54,17 +53,13 @@ export default {
     validate() {
       if (this.$refs.form.validate()) {
         const usersData = JSON.parse(localStorage.getItem('data'));
-
         if (usersData[this.userName] === this.password) {
-          this.$router.push(`/${this.userName}`);
+          localStorage.setItem('logedUser', this.userName);
+          this.$router.push('/user');
         } else {
-          // console.log('neverno!');
           this.loginWarning = 'Неверный логин и/или пароль';
         }
       }
-    },
-    onSubmit() {
-      console.log('submit');
     },
   },
 };
