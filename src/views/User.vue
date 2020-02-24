@@ -1,9 +1,8 @@
 <template>
   <div>
-    <v-btn @click="logout">Logout</v-btn>
     <v-card class="mx-auto mt-5 question">
       <v-card-title>
-        <h1 v-if="this.user === 'student'" class="display-1">Написать препадователю</h1>
+        <h1 v-if="this.user === 'student'" class="display-1">Написать преподавателю</h1>
         <h1 v-if="this.user === 'teacher'" class="display-1">Написать студенту</h1>
       </v-card-title>
       <v-card-text>
@@ -66,8 +65,8 @@ export default {
     this.user = localStorage.getItem('logedUser');
     const dataFromLocalStorage = localStorage.getItem('historyOfMessages');
     if (dataFromLocalStorage === null) {
-      this.historyOfMessages = []; // { theme: null, Qlist: [{ text: null, file: null }] }
-      localStorage.setItem('historyOfMessages', '[]'); // { "theme": "null", "Qlist": [{ "text": "null", "file": "null" }] }
+      this.historyOfMessages = [];
+      localStorage.setItem('historyOfMessages', '[]');
     } else {
       this.historyOfMessages = JSON.parse(dataFromLocalStorage);
     }
@@ -77,10 +76,6 @@ export default {
     changeTheme(value) {
       this.themeOfQuestion = value;
     },
-    logout() {
-      localStorage.removeItem('logedUser');
-      this.$router.replace('/login');
-    },
     send() {
       const tempArray = JSON.parse(JSON.stringify(this.historyOfMessages));
       let match = null;
@@ -89,13 +84,32 @@ export default {
           match = i;
         }
       });
+
+      const toBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+
+      async function Main(file) {
+        const result = await toBase64(file);
+        localStorage.setItem('tempFile', result);
+        return result;
+      }
+
+      if (this.fileOfQuestion) {
+        this.fileOfQuestion = Main(this.fileOfQuestion);
+      }
+
       if (match !== null) {
         let Qitem = {
           role: this.user,
           text: this.textOfQuestion,
-          file: this.fileOfQuestion,
+          file: localStorage.getItem('tempFile'),
         };
         tempArray[match].Qlist.push(Qitem);
+        localStorage.removeItem('tempFile');
         Qitem = {};
       } else {
         let question = {
@@ -104,17 +118,15 @@ export default {
             {
               role: this.user,
               text: this.textOfQuestion,
-              file: this.fileOfQuestion,
+              file: localStorage.getItem('tempFile'),
             },
           ],
         };
         tempArray.push(question);
+        localStorage.removeItem('tempFile');
         question = {};
       }
       this.historyOfMessages = tempArray;
-
-      console.log(this.historyOfMessages);
-
       localStorage.setItem('historyOfMessages', JSON.stringify(this.historyOfMessages));
     },
   },

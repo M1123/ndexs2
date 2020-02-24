@@ -1,7 +1,7 @@
 <template>
 <div>
  <h1 class="display-1">Вопросы и ответы</h1>
-  <v-card v-for="(item, index) in test" :key="index"
+  <v-card v-for="(item, index) in this.historyOfMessages" :key="index"
     class="mx-auto question"
   >
     <v-card-title>
@@ -24,7 +24,9 @@
           <tr v-for="(element, index) in item.Qlist" :key="index">
             <td>{{ element.role }}</td>
             <td>{{ element.text }}</td>
-            <td>{{ element.file }}</td>
+            <td>
+              <button v-if="element.file" @click="saveFile(element.file)">save</button>
+            </td>
           </tr>
         </tbody>
       </template>
@@ -43,6 +45,13 @@ export default {
   methods: {
     chooseThisTheme(theme) {
       this.$emit('changeTheme', theme);
+    },
+    saveFile(file) {
+      const ext = file;
+      const link = document.createElement('a');
+      link.setAttribute('href', file);
+      link.setAttribute('download', `*.${ext}`);
+      link.click();
     },
   },
   computed: {

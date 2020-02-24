@@ -1,10 +1,11 @@
 <template>
   <v-app>
-    <h1>
-      <router-link to="/">EXS2</router-link>
-    </h1>
+    <header>
+      <router-link to="/"><h1>EXS2</h1></router-link>
+      <v-btn v-if="this.logedUser" @click="logout">Logout</v-btn>
+    </header>
     <hr>
-    <router-view/>
+    <router-view @auth="auth"/>
   </v-app>
 </template>
 
@@ -13,7 +14,17 @@ export default {
   name: 'App',
   components: {},
   data: () => ({
-
+    logedUser: false,
   }),
+  methods: {
+    auth(value) {
+      this.logedUser = value;
+    },
+    logout() {
+      localStorage.removeItem('logedUser');
+      this.$router.replace('/login');
+      this.logedUser = false;
+    },
+  },
 };
 </script>
