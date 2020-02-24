@@ -1,7 +1,8 @@
 <template>
   <v-app>
-    <header>
-      <router-link to="/"><h1>EXS2</h1></router-link>
+    <header class="header">
+      <router-link to="/" class="display-1">Вопросы</router-link>
+      <v-spacer/>
       <v-btn v-if="this.logedUser" @click="logout">Logout</v-btn>
     </header>
     <hr>
@@ -28,3 +29,13 @@ export default {
   },
 };
 </script>
+
+<style  scoped>
+  .header{
+    display: flex;
+  }
+  .display-1{
+    text-decoration: none;
+    color: #000;
+  }
+</style>

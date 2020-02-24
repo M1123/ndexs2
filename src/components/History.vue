@@ -1,7 +1,9 @@
 <template>
 <div>
- <h1 class="display-1">Вопросы и ответы</h1>
-  <v-card v-for="(item, index) in this.historyOfMessages" :key="index"
+ <div class="display-1">Вопросы и ответы</div>
+  <v-card
+    v-for="(item, index) in this.historyOfMessages"
+    :key="index"
     class="mx-auto question"
   >
     <v-card-title>
@@ -47,10 +49,10 @@ export default {
       this.$emit('changeTheme', theme);
     },
     saveFile(file) {
-      const ext = file;
+      const ext = file.match('/(.*?);')[1];
       const link = document.createElement('a');
       link.setAttribute('href', file);
-      link.setAttribute('download', `*.${ext}`);
+      link.setAttribute('download', `Вложение.${ext}`);
       link.click();
     },
   },
@@ -63,11 +65,23 @@ export default {
 </script>
 
 <style scoped>
+  .display-1{
+    margin: auto;
+    text-align: center;
+  }
   .question{
+    border: #ddd;
+    margin: 20px;
     min-width: 320px;
-    width: 100%;
+    width: 90%;
   }
   .themeTitle{
     cursor: pointer;
+    margin: 5px;
+  }
+  .themeTitle:hover{
+    border: 1px solid #ddd;
+    margin: 3px;
+    zoom: 1.25;
   }
 </style>
