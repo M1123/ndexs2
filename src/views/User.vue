@@ -10,7 +10,7 @@
       <v-btn @click="logout">Logout</v-btn>
     </header>
     <hr>
-    <v-card class="mx-auto mt-5 question">
+    <v-card class="mx-auto mt-5 question" @submit.prevent="onSubmit">
       <v-card-title>
         <h1 v-if="this.user === 'student'" class="display-1">Написать преподавателю</h1>
         <h1 v-if="this.user === 'teacher'" class="display-1">Написать студенту</h1>
@@ -42,6 +42,7 @@
       <v-divider></v-divider>
       <v-card-actions >
         <v-file-input
+          @change="fileChange($event)"
           v-if="this.user === 'student'"
           :rules="fileRules"
           accept=".pdf, image/*"
@@ -81,6 +82,7 @@ export default {
     themeOfQuestion: null,
     fileOfQuestion: null,
     historyOfMessages: null,
+    fileName: null,
     user: null,
   }),
   created() {
@@ -99,6 +101,24 @@ export default {
 
   // методы компонента
   methods: {
+    fileChange(evt) {
+      this.fileName = evt.name;
+      // кодирование вложенного файла в Base64
+      const toBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+      // получение результата преобразования файла
+      async function Main(file) {
+        const result = await toBase64(file);
+        localStorage.setItem('tempFile', result);
+        return result;
+      }
+      this.fileOfQuestion = Main(evt);
+      console.log('evt.target: ', evt);
+    },
     // деавторизация
     logout() {
       localStorage.removeItem('logedUser');
@@ -116,6 +136,7 @@ export default {
     },
     // обнуление переменных и сброс валидации
     reset() {
+      this.fileName = null;
       this.fileOfQuestion = null;
       this.themeOfQuestion = null;
       this.textOfQuestion = null;
@@ -132,45 +153,6 @@ export default {
           match = i;
         }
       });
-      // кодирование вложенного файла в Base64
-      const toBase64 = (file) => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
-      });
-      // получение результата преобразования файла
-      async function Main(file) {
-        const result = await toBase64(file);
-        localStorage.setItem('tempFile', result);
-        return result;
-      }
-      // запись файла в localStorage
-      // if (this.fileOfQuestion) {
-      //   this.fileOfQuestion = Main(this.fileOfQuestion);
-      // }
-
-      if (this.fileOfQuestion) {
-        Main(this.fileOfQuestion);
-        let m = 0;
-        this.themeOfQuestion = localStorage.getItem('tempTheme');
-        this.fileOfQuestion = localStorage.getItem('tempFile');
-        const hm = JSON.parse(localStorage.getItem('historyOfMessages'));
-        // поиск объекта по теме в массиве сообщений
-        hm.forEach((item, i) => {
-          if (item.theme === this.themeOfQuestion) {
-            m = i;
-            console.log('m', m);
-          }
-        });
-        hm[m].Qlist[hm[m].Qlist.length - 1].file = localStorage.getItem('tempFile');
-        const temp = JSON.stringify(hm);
-        console.log('temp', temp);
-        localStorage.setItem('historyOfMessages', temp);
-        localStorage.removeItem('tempFile');
-        this.reset();
-      }
-
       this.write(match, tempArray);
     },
     // запись сообщения в localStorage
