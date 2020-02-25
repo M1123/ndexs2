@@ -42,7 +42,7 @@
       <v-divider></v-divider>
       <v-card-actions >
         <v-file-input
-          @change="fileChange($event)"
+          @change.once="fileChange($event)"
           v-if="this.user === 'student'"
           :rules="fileRules"
           accept=".pdf, image/*"
@@ -82,7 +82,6 @@ export default {
     themeOfQuestion: null,
     fileOfQuestion: null,
     historyOfMessages: null,
-    fileName: null,
     user: null,
   }),
   created() {
@@ -106,7 +105,7 @@ export default {
       // кодирование вложенного файла в Base64
       const toBase64 = (file) => new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
+        if (file) { reader.readAsDataURL(file); }
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
       });
@@ -116,8 +115,8 @@ export default {
         localStorage.setItem('tempFile', result);
         return result;
       }
-      this.fileOfQuestion = Main(evt);
-      console.log('evt.target: ', evt);
+      this.fileOfQuestion = Main(evt.target.files[0]);
+      console.log('evt.target: ', evt.target.files[0]);
     },
     // деавторизация
     logout() {
