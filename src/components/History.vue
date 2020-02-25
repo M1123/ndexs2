@@ -1,3 +1,4 @@
+//компонент выводящий историю сообщений
 <template>
 <div>
  <div v-if="this.historyOfMessages !== null" class="display-1">Вопросы и ответы</div>

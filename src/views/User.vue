@@ -146,9 +146,31 @@ export default {
         return result;
       }
       // запись файла в localStorage
+      // if (this.fileOfQuestion) {
+      //   this.fileOfQuestion = Main(this.fileOfQuestion);
+      // }
+
       if (this.fileOfQuestion) {
-        this.fileOfQuestion = Main(this.fileOfQuestion);
+        Main(this.fileOfQuestion);
+        let m = 0;
+        this.themeOfQuestion = localStorage.getItem('tempTheme');
+        this.fileOfQuestion = localStorage.getItem('tempFile');
+        const hm = JSON.parse(localStorage.getItem('historyOfMessages'));
+        // поиск объекта по теме в массиве сообщений
+        hm.forEach((item, i) => {
+          if (item.theme === this.themeOfQuestion) {
+            m = i;
+            console.log('m', m);
+          }
+        });
+        hm[m].Qlist[hm[m].Qlist.length - 1].file = localStorage.getItem('tempFile');
+        const temp = JSON.stringify(hm);
+        console.log('temp', temp);
+        localStorage.setItem('historyOfMessages', temp);
+        localStorage.removeItem('tempFile');
+        this.reset();
       }
+
       this.write(match, tempArray);
     },
     // запись сообщения в localStorage
