@@ -147,21 +147,7 @@ export default {
       }
       // запись файла в localStorage
       if (this.fileOfQuestion) {
-        Main(this.fileOfQuestion);
-        let m = 0;
-        this.historyOfMessages = JSON.parse(localStorage.getItem('historyOfMessages'));
-        this.themeOfQuestion = localStorage.getItem('tempTheme');
-        this.fileOfQuestion = localStorage.getItem('tempFile');
-        const hm = this.historyOfMessages;
-        // поиск объекта по теме в массиве сообщений
-        hm.forEach((item, i) => {
-          if (item.theme === this.themeOfQuestion) {
-            m = i;
-          }
-        });
-        hm[m].Qlist[hm.Qlist.length - 1].file = localStorage.getItem('tempFile');
-        localStorage.setItem('historyOfMessages', JSON.stringify(hm));
-        localStorage.removeItem('tempFile');
+        this.fileOfQuestion = Main(this.fileOfQuestion);
       }
       this.write(match, tempArray);
     },
@@ -171,7 +157,7 @@ export default {
         let Qitem = {
           role: this.user,
           text: this.textOfQuestion,
-          file: this.fileOfQuestion,
+          file: localStorage.getItem('tempFile'),
         };
         tempArray[index].Qlist.push(Qitem);
         Qitem = {};
@@ -182,7 +168,7 @@ export default {
             {
               role: this.user,
               text: this.textOfQuestion,
-              file: this.fileOfQuestion,
+              file: localStorage.getItem('tempFile'),
             },
           ],
         };
