@@ -116,7 +116,6 @@ export default {
         return result;
       }
       this.fileOfQuestion = Main(evt.target.files[0]);
-      console.log('evt.target: ', evt.target.files[0]);
     },
     // деавторизация
     logout() {
@@ -140,6 +139,7 @@ export default {
       this.themeOfQuestion = null;
       this.textOfQuestion = null;
       this.$refs.mainForm.resetValidation();
+      this.$refs.mainForm.reset();
       localStorage.removeItem('tempFile');
     },
     // отправка
@@ -181,6 +181,7 @@ export default {
       this.historyOfMessages = tempArray;
       this.reset();
       localStorage.setItem('historyOfMessages', JSON.stringify(this.historyOfMessages));
+      window.location.reload();
     },
   },
 };
