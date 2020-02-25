@@ -1,13 +1,28 @@
 <template>
   <div>
+    <header class="header">
+      <h1 v-if="this.user === 'student'" class="display-1">Личный кабинет студента</h1>
+      <h1 v-if="this.user === 'teacher'" class="display-1">Личный кабинет преподавателя</h1>
+      <v-spacer/>
+      <v-btn @click="logout">Logout</v-btn>
+    </header>
+    <hr>
     <v-card class="mx-auto mt-5 question">
       <v-card-title>
         <h1 v-if="this.user === 'student'" class="display-1">Написать преподавателю</h1>
         <h1 v-if="this.user === 'teacher'" class="display-1">Написать студенту</h1>
       </v-card-title>
       <v-card-text>
-        <v-form>
+        <v-form ref="mainForm" v-model="valid">
+          <v-select
+            v-if="this.user === 'teacher'"
+            :items="themes"
+            v-model="themeOfQuestion"
+            outlined
+            :rules="nameRules"
+          ></v-select>
           <v-text-field
+            v-if="this.user === 'student'"
             label="Тема вопроса"
             v-model="themeOfQuestion"
             :rules="nameRules"
@@ -23,14 +38,14 @@
       <v-card-actions >
         <v-file-input
           v-if="this.user === 'student'"
-          :rules="rules"
+          :rules="fileRules"
           accept=".pdf, image/*"
           label="Select File..."
           show-size
           v-model="fileOfQuestion"
         ></v-file-input>
         <v-spacer/>
-        <v-btn @click="send" color="info">Send</v-btn>
+        <v-btn @click="validate" type="submit" color="info">Send</v-btn>
       </v-card-actions>
     </v-card>
     <v-spacer></v-spacer>
@@ -49,12 +64,14 @@ export default {
     History,
   },
   data: () => ({
-    rules: [
+    fileRules: [
       (v) => !v || v.size <= 102400 || 'Размер файла должен быть не более 100 KB!',
     ],
     nameRules: [
       (v) => !!v || 'Поле обязательно для ввода',
     ],
+    themes: [],
+    valid: true,
     textOfQuestion: null,
     themeOfQuestion: null,
     fileOfQuestion: null,
@@ -70,15 +87,35 @@ export default {
     } else {
       this.historyOfMessages = JSON.parse(dataFromLocalStorage);
     }
+    this.historyOfMessages.forEach((item) => {
+      this.themes.push(item.theme);
+    });
   },
 
   methods: {
+    logout() {
+      localStorage.removeItem('logedUser');
+      this.$router.replace('/');
+    },
     changeTheme(value) {
       this.themeOfQuestion = value;
+    },
+    validate() {
+      if (this.$refs.mainForm.validate()) {
+        this.send();
+      }
+    },
+    reset() {
+      this.fileOfQuestion = null;
+      this.themeOfQuestion = null;
+      this.textOfQuestion = null;
+      this.$refs.mainForm.resetValidation();
+      localStorage.removeItem('tempFile');
     },
     send() {
       const tempArray = JSON.parse(JSON.stringify(this.historyOfMessages));
       let match = null;
+      localStorage.setItem('tempTheme', this.themeOfQuestion);
       this.historyOfMessages.forEach((item, i) => {
         if (item.theme === this.themeOfQuestion) {
           match = i;
@@ -99,40 +136,58 @@ export default {
       }
 
       if (this.fileOfQuestion) {
-        this.fileOfQuestion = Main(this.fileOfQuestion);
+        Main(this.fileOfQuestion);
+        let m = 0;
+        this.historyOfMessages = JSON.parse(localStorage.getItem('historyOfMessages'));
+        this.themeOfQuestion = localStorage.getItem('tempTheme');
+        this.fileOfQuestion = localStorage.getItem('tempFile');
+        const hm = this.historyOfMessages;
+        hm.forEach((item, i) => {
+          if (item.theme === this.themeOfQuestion) {
+            m = i;
+            console.log('m: ', m);
+          }
+        });
+        hm[m].Qlist[hm.Qlist.length - 1].file = localStorage.getItem('tempFile');
+        localStorage.setItem('historyOfMessages', JSON.stringify(hm));
+        localStorage.removeItem('tempFile');
       }
-
-      if (match !== null) {
+      this.write(match, tempArray);
+    },
+    write(index, tempArray) {
+      if (index !== null) { // повторные сообщения в этой теме
         let Qitem = {
           role: this.user,
           text: this.textOfQuestion,
-          file: localStorage.getItem('tempFile'),
+          file: this.fileOfQuestion,
         };
-        tempArray[match].Qlist.push(Qitem);
-        localStorage.removeItem('tempFile');
+        tempArray[index].Qlist.push(Qitem);
         Qitem = {};
-      } else {
+      } else { // если еще нет сообщений с такой темой
         let question = {
           theme: this.themeOfQuestion,
           Qlist: [
             {
               role: this.user,
               text: this.textOfQuestion,
-              file: localStorage.getItem('tempFile'),
+              file: this.fileOfQuestion,
             },
           ],
         };
         tempArray.push(question);
-        localStorage.removeItem('tempFile');
         question = {};
       }
       this.historyOfMessages = tempArray;
+      this.reset();
       localStorage.setItem('historyOfMessages', JSON.stringify(this.historyOfMessages));
     },
   },
 };
 </script>
 <style scoped>
+  .header{
+    display: flex;
+  }
   .question{
     width: 50vw;
     min-width: 320px;

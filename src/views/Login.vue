@@ -56,7 +56,6 @@ export default {
         if (usersData[this.userName] === this.password) {
           localStorage.setItem('logedUser', this.userName);
           this.$router.push('/user');
-          this.$emit('auth', true);
         } else {
           this.loginWarning = 'Неверный логин и/или пароль';
         }

@@ -1,5 +1,4 @@
 import Vue from 'vue';
-// import VueLocalForage from 'vue-localforage';
 import App from './App.vue';
 import './registerServiceWorker';
 import vuetify from './plugins/vuetify';

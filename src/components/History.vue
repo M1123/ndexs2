@@ -1,6 +1,6 @@
 <template>
 <div>
- <div class="display-1">Вопросы и ответы</div>
+ <div v-if="this.historyOfMessages !== null" class="display-1">Вопросы и ответы</div>
   <v-card
     v-for="(item, index) in this.historyOfMessages"
     :key="index"
@@ -27,7 +27,9 @@
             <td>{{ element.role }}</td>
             <td>{{ element.text }}</td>
             <td>
-              <button v-if="element.file" @click="saveFile(element.file)">save</button>
+              <button v-if="element.file" @click="saveFile(element.file)">
+                <v-icon>mdi-download</v-icon>
+              </button>
             </td>
           </tr>
         </tbody>
