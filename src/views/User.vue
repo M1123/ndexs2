@@ -1,6 +1,9 @@
+// Однофайловый компонент для вывода
+// Личного кабинета авторизованного пользователя (student или teacher)
 <template>
   <div>
     <header class="header">
+      <!-- //заголовки по условию -->
       <h1 v-if="this.user === 'student'" class="display-1">Личный кабинет студента</h1>
       <h1 v-if="this.user === 'teacher'" class="display-1">Личный кабинет преподавателя</h1>
       <v-spacer/>
@@ -14,6 +17,7 @@
       </v-card-title>
       <v-card-text>
         <v-form ref="mainForm" v-model="valid">
+          <!-- //у преподавателя тема выбирается из существующих (только ответ) -->
           <v-select
             v-if="this.user === 'teacher'"
             :items="themes"
@@ -21,6 +25,7 @@
             outlined
             :rules="nameRules"
           ></v-select>
+          <!-- //у студента поле для ввода темы вопроса -->
           <v-text-field
             v-if="this.user === 'student'"
             label="Тема вопроса"
@@ -92,19 +97,24 @@ export default {
     });
   },
 
+  // методы компонента
   methods: {
+    // деавторизация
     logout() {
       localStorage.removeItem('logedUser');
       this.$router.replace('/');
     },
+    // выбор темы в дропдауне у преподавателя
     changeTheme(value) {
       this.themeOfQuestion = value;
     },
+    // валидация и вызов метода отправки
     validate() {
       if (this.$refs.mainForm.validate()) {
         this.send();
       }
     },
+    // обнуление переменных и сброс валидации
     reset() {
       this.fileOfQuestion = null;
       this.themeOfQuestion = null;
@@ -112,6 +122,7 @@ export default {
       this.$refs.mainForm.resetValidation();
       localStorage.removeItem('tempFile');
     },
+    // отправка
     send() {
       const tempArray = JSON.parse(JSON.stringify(this.historyOfMessages));
       let match = null;
@@ -121,20 +132,20 @@ export default {
           match = i;
         }
       });
-
+      // кодирование вложенного файла в Base64
       const toBase64 = (file) => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
       });
-
+      // получение результата преобразования файла
       async function Main(file) {
         const result = await toBase64(file);
         localStorage.setItem('tempFile', result);
         return result;
       }
-
+      // запись файла в localStorage
       if (this.fileOfQuestion) {
         Main(this.fileOfQuestion);
         let m = 0;
@@ -142,10 +153,10 @@ export default {
         this.themeOfQuestion = localStorage.getItem('tempTheme');
         this.fileOfQuestion = localStorage.getItem('tempFile');
         const hm = this.historyOfMessages;
+        // поиск объекта по теме в массиве сообщений
         hm.forEach((item, i) => {
           if (item.theme === this.themeOfQuestion) {
             m = i;
-            console.log('m: ', m);
           }
         });
         hm[m].Qlist[hm.Qlist.length - 1].file = localStorage.getItem('tempFile');
@@ -154,6 +165,7 @@ export default {
       }
       this.write(match, tempArray);
     },
+    // запись сообщения в localStorage
     write(index, tempArray) {
       if (index !== null) { // повторные сообщения в этой теме
         let Qitem = {

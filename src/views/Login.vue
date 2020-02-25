@@ -1,10 +1,14 @@
+//страница логина
 <template>
   <div>
+    <!-- создаем карточку с формой логина -->
+    <!-- метод prevent (убирает действия по умолчанию (перезагрузку страницы)) -->
     <v-card width="400" class="mx-auto mt-5" @submit.prevent="onSubmit">
       <v-card-title>
         <h1 class="display-1">LogIn</h1>
       </v-card-title>
       <v-card-text>
+        <!-- отслеживаем изменения через v-model -->
         <v-form ref="form" v-model="valid">
           <v-text-field
             v-model="userName"
@@ -12,6 +16,7 @@
             prepend-icon="mdi-account-circle"
             :rules="nameRules"
           />
+            <!-- правила для валидации - rules  -->
           <v-text-field
             :type="showPassword?'text':'password'"
             label="Password"
@@ -21,6 +26,7 @@
             @click:append="showPassword=!showPassword"
             :rules="nameRules"
           />
+          <!-- по флагу showPassword скрываем и показываем пароль, меняя тип поля -->
         </v-form>
       </v-card-text>
       <v-divider></v-divider>
@@ -44,12 +50,14 @@ export default {
       (v) => !!v || 'Поле обязательно для ввода',
     ],
   }),
+  // хуки ЖЦ Vue - mounted, created, ...
   mounted() {
     if (!window.localStorage.getItem('data')) {
       localStorage.setItem('data', JSON.stringify({ teacher: 'tdemo', student: 'sdemo' }));
     }
   },
   methods: {
+    // валидация - если проверяем значения логина и пароля с данными в localStorage
     validate() {
       if (this.$refs.form.validate()) {
         const usersData = JSON.parse(localStorage.getItem('data'));
@@ -64,6 +72,7 @@ export default {
   },
 };
 </script>
+// блок со стилями
 <style>
   .loginWarning{
     color: red;
